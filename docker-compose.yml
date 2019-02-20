@@ -1,5 +1,15 @@
 version: '2'
 services:
+ dinghy:
+   ports:
+     - "3000:3000"
+   links:
+     - wpe
+   networks:
+     - local
+   privileged: true
+   build: ./dinghy
+   restart: always
  wpe:
    networks:
      - local
