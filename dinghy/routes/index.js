@@ -1,5 +1,6 @@
 var models  = require('../models');
 var express = require('express');
+var Camera = require('../lib/camera');
 var router  = express.Router();
 var { Event, Image } = models;
 
@@ -64,16 +65,38 @@ router.post('/images', (req, res) => {
       return res.send({status: 'error', message:  'No active event'});
     } else {
 
-      let payload = {
-        localPath: 'abc123',
-        event_id: event.id
-      }
-  
-      Image.create(payload).then((newImage) => {
+
+
+      const ts = Date.now();
       
-        res.send(newImage);
+      let file = `/image-${ts}.jpg`
+      let filePath = `./images/${file}`;
+      let interval = false;
       
-      });    
+      
+      Camera.findFirst((err, activeCamera) => {
+      
+          Camera.takePhoto(activeCamera, filePath, interval, (err, result) => {
+      
+            let payload = {
+              localPath: file,
+              event_id: event.id
+            }
+        
+            Image.create(payload).then((newImage) => {
+            
+              res.send({ newImage, file });
+              console.log('photo done, record saved');
+            
+            });   
+
+              
+      
+          });
+      
+      });      
+
+ 
   
     }
 
